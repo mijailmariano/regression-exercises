@@ -14,8 +14,9 @@ from env import user, password, host, get_connection
 # sklearn train, test, and split function
 from sklearn.model_selection import train_test_split
 
-
-
+'''function that will either 
+1. import the zillow dataset from MySQL or 
+2. import from cached .csv file'''
 def get_zillow_dataset():
     # importing "cached" dataset
     filename = "zillow.csv"
@@ -30,25 +31,23 @@ def get_zillow_dataset():
                 bedroomcnt as bedroom_count,
                 bathroomcnt as bath_count,
                 calculatedfinishedsquarefeet as finished_sq_feet,
-                taxvaluedollarcnt as tax_dollar_value,
+                taxvaluedollarcnt as home_value,
                 yearbuilt as year_built,
-                taxamount,
+                taxamount as tax_amount,
                 fips
         FROM properties_2017
         JOIN propertylandusetype using (propertylandusetypeid)
         WHERE propertylandusedesc = "Single Family Residential"
         '''
-        db_url = f'mysql+pymysql://{user}:{password}@{host}/telco_churn'
+        db_url = f'mysql+pymysql://{user}:{password}@{host}/zillow'
         # creating the zillow dataframe using Pandas' read_sql() function
         df = pd.read_sql(query, db_url)
         df.to_csv(filename)
         return df
 
 
-
-# Preparing/cleaning zillow dataset
-# focus is dropping Null values and changing column types 
-
+'''Preparing/cleaning zillow dataset
+focus is dropping Null values and changing column types'''
 def clean_zillow_dataset(df):
     # dropping null values in dataset (where <=1% makeup nulls in ea. feature/column)
     df = df.dropna()
@@ -61,14 +60,16 @@ def clean_zillow_dataset(df):
     # lastly, return the cleaned dataset
     return df
 
+
 # function for handling outliers in the dataset
 def zillow_outliers(df):
     df = df[df["bath_count"] <= 6]
     df = df[df["bedroom_count"] <= 6]
     df = df[df["finished_sq_feet"] <= 8000]
-    df = df[df["tax_dollar_value"] <= 1_500_000]
+    df = df[df["home_value"] <= 1_500_000]
 
     return df
+
 
 def train_validate_test_split(df):
     train_and_validate, test = train_test_split(
