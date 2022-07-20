@@ -97,18 +97,17 @@ def train_validate_test_split(df):
 def plot_variable_pairs(train_df, x_features_lst):
     for col in x_features_lst:
         plt.figure(figsize = (10, 4))
+        sns.set(font_scale = 1)
 
-        # plotting ea. feature against home value with added "independent jitter" for easier visual
+        # plotting ea. feature against target variable with added "independent jitter" for easier visual
         ax = sns.regplot(train_df[[col]].sample(2000), \
-        train_df["home_value"].sample(2000), \
+        train_df[["home_value"]].sample(2000), \
         x_jitter = 1, # adding superficial noise to independent variables
         line_kws={
             "color": "red", 'linewidth': 1.5})
         
-        # editing the plots and chart
-        ax.figure.set_size_inches(20, 6)
+        ax.figure.set_size_inches(18.5, 8.5)
         sns.despine()
-        
         # removing scientific notations
         ax.ticklabel_format(style = "plain")
         
