@@ -56,6 +56,16 @@ def clean_zillow_dataset(df):
     df["bedroom_count"] = df["bedroom_count"].astype("int").round()
     df["year_built"] = df["year_built"].astype("int")
     df["fips"] = df["fips"].astype("int")
+    
+    # rearranging columns for easier readibility
+    df = df[[
+        'bedroom_count',
+        'bath_count',
+        'finished_sq_feet',
+        'year_built',
+        'fips',
+        'tax_amount',
+        'home_value']]
 
     # lastly, return the cleaned dataset
     return df
@@ -81,3 +91,29 @@ def train_validate_test_split(df):
         random_state=123)
 
     return train, validate, test
+
+
+'''function takes in a dataframe and list, and plots them against target variable w/'line-of-best-fit'''
+def plot_variable_pairs(train_df, x_features_lst):
+    for col in x_features_lst:
+        plt.figure(figsize = (10, 4))
+
+        # plotting ea. feature against home value with added "independent jitter" for easier visual
+        ax = sns.regplot(train_df[[col]].sample(2000), \
+        train_df["home_value"].sample(2000), \
+        x_jitter = 1, # adding superficial noise to independent variables
+        line_kws={
+            "color": "red", 'linewidth': 1.5})
+        
+        # editing the plots and chart
+        ax.figure.set_size_inches(20, 6)
+        sns.despine()
+        
+        # removing scientific notations
+        ax.ticklabel_format(style = "plain")
+        
+        # removing x_axis label
+        ax.set_xlabel(None)
+
+        plt.title(col)
+        plt.show()

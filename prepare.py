@@ -17,8 +17,8 @@ from sklearn.model_selection import train_test_split
 
 
 '''function for plotting categorical or discrete/low feature option columns'''
-def plot_discrete(df, column_lst):
-    for column in df[[column_lst]]]:
+def plot_discrete(df, feature_lst):
+    for column in df[[feature_lst]]:
         plt.figure(figsize=(12, 6))
         sns.set(font_scale = 1)
         ax = sns.countplot(x = column, 
@@ -32,10 +32,10 @@ def plot_discrete(df, column_lst):
 
 
 '''function for plotting continuous/high feature option columns'''
-def plot_continuous(df, column_lst):
-    for column in df[[column_lst]]:
+def plot_continuous(df, feature_lst):
+    for column in df[[feature_lst]]:
         plt.figure(figsize=(12, 6))
-        ax = sns.distplot(x = df[column_lst], 
+        ax = sns.distplot(x = df[feature_lst], 
                         bins = 50,
                         kde = True)
         ax.set(xlabel = None)
