@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 import env
 from env import user, password, host, get_connection
 
-# sklearn train, test, and split function
-from sklearn.model_selection import train_test_split
+# sklearn df, test, and split function
+from sklearn.model_selection import df_test_split
 
 
 
@@ -57,3 +57,31 @@ def plot_target(df):
     plt.axvline(df.median(), linewidth = 2, color = 'purple', alpha = 0.4, label = "median")
     plt.legend()
     plt.show()
+
+
+'''Plotting features against target variable w/line-of-best-fit'''
+def features_and_target(df):
+    cols = df.columns.to_list()
+    for col in cols:
+        plt.figure(figsize = (10, 4))
+        sns.set(font_scale = 1)
+
+        # plotting ea. feature against target variable with added "independent jitter" for easier visual
+        ax = sns.regplot(df[[col]].sample(2000), \
+        df["home_value"].sample(2000), \
+        
+        # adding superficial noise to independent variables to help visualize the individual plots
+        x_jitter = 1, \
+        line_kws={
+            "color": "red", 'linewidth': 1.5})
+        
+        ax.figure.set_size_inches(18.5, 8.5)
+        sns.despine()
+        # removing scientific notations
+        ax.ticklabel_format(style = "plain")
+        
+        # removing x_axis label
+        ax.set_xlabel(None)
+
+        plt.title(col)
+        plt.show()
