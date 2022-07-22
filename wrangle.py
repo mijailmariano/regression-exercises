@@ -127,10 +127,6 @@ def plot_variable_pairs(train_df, x_features_lst):
 
 
 
-
-
-
-
 '''function for plotting categorical or discrete/low feature option columns'''
 def plot_discrete(df, feature_lst):
     for column in df[[feature_lst]]:
@@ -209,3 +205,55 @@ def compare_sum_of_squares(SSE_baseline, SSE_model):
         print("Model DOES NOT outperform baseline.")
     else:
         print("Model outperforms baseline!")
+
+
+
+'''Function to plot model residuals against actual (y_variable):
+furthermore, model takes in two (2) dataframes or series (y and y_hat) - where y_hat = model preditions
+and calculates the model residula (y - y_hat)'''
+def plot_residuals(y, y_hat):
+    y = y.sample(5000, random_state = 123)
+    y_hat = y_hat.sample(5000, random_state = 123)
+    residuals = y - y_hat
+    plt.figure(figsize = (12,6))
+    ax = plt.scatter(x = y, y = residuals, 
+                alpha = 1/5)
+
+    plt.axhline(y = 0, ls = ':', color = "red", linewidth = 2)
+    plt.xlabel('y_variable')
+    plt.ylabel('Residual')
+    plt.title('Model Residuals')
+    # removing axes scientific notation
+    plt.ticklabel_format(style = "plain") 
+
+    # making individual plots more readable
+    ax.figure.set_size_inches(18, 8)
+
+
+'''Function that takes in y_variable and y_hat (predictions) and returns whether or not the created model 
+has a lower sum of squared error than baseline'''
+def better_than_baseline(y, y_hat):
+    df_model = y.sample(1000, random_state = 123) - y_hat.sample(1000, random_state = 123)
+    df_model["residual^2"] = df_model.round(2) ** 2
+
+    # calculating a baseline
+    baseline = round(y.sample(1000, random_state = 123).mean(), 2)
+
+    # creating an empty DataFrame with n_rows as y
+    df = pd.DataFrame(index = range(len(y)))
+
+    # setting the n_values for all indices in df
+    df["baseline"] = baseline
+
+    df["baseline_residuals"] = y - df["baseline"]
+    df["baseline_residual^2"] = df["baseline_residuals"].round(2) ** 2
+
+    # generating sum of squared error
+    SSE_model = sum(df_model["residual^2"])
+    SSE_baseline = sum(df["baseline_residual^2"])
+
+
+    if SSE_model < SSE_baseline:
+        return True
+    else:
+        return False
