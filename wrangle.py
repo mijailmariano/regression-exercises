@@ -13,6 +13,8 @@ from env import user, password, host, get_connection
 
 # sklearn train, test, and split function
 from sklearn.model_selection import train_test_split
+from sklearn.feature_selection import SelectKBest, RFE, f_regression
+from sklearn.linear_model import LinearRegression
 
 
 '''function that will either 
@@ -91,8 +93,15 @@ def train_validate_test_split(df):
         test_size=0.3,
         random_state=123)
 
-    return train, validate, test
+    print(f'train shape: {train.shape}')
+    print(f'validate shape: {validate.shape}')
+    print(f'test shape: {test.shape}')
 
+    return train, validate, test
+    
+
+
+# plotting functions
 
 '''Function takes in a dataframe and plots all variables against one another using sns.pairplot function. 
 This function also shows the line-of-best-fit for ea. plotted variables'''
@@ -198,16 +207,6 @@ def features_and_target(df):
         plt.show()
 
 
-'''Function to compare Model vs. Baseline Sum-of-Squares'''
-# note: the lower the SSE, the lower the predicted error from actual observations & the better the model represents the "actual" predictions
-def compare_sum_of_squares(SSE_baseline, SSE_model):
-    if SSE_model >= SSE_baseline:
-        print("Model DOES NOT outperform baseline.")
-    else:
-        print("Model outperforms baseline!")
-
-
-
 '''Function to plot model residuals against actual (y_variable):
 furthermore, model takes in two (2) dataframes or series (y and y_hat) - where y_hat = model preditions
 and calculates the model residula (y - y_hat)'''
@@ -228,6 +227,19 @@ def plot_residuals(y, y_hat):
 
     # making individual plots more readable
     ax.figure.set_size_inches(18, 8)
+
+
+
+# compare functions
+
+'''Function to compare Model vs. Baseline Sum-of-Squares'''
+# note: the lower the SSE, the lower the predicted error from actual observations & the better the model represents the "actual" predictions
+def compare_sum_of_squares(SSE_baseline, SSE_model):
+    if SSE_model >= SSE_baseline:
+        print("Model DOES NOT outperform baseline.")
+    else:
+        print("Model outperforms baseline!")
+
 
 
 '''Function that takes in y_variable and y_hat (predictions) and returns whether or not the created model 
@@ -257,3 +269,55 @@ def better_than_baseline(y, y_hat):
         return True
     else:
         return False
+
+
+# feature engineering functions
+
+def select_kbest(X_train, y_train, number_of_top_features):
+    # using Select-K-Best to select the top number of features for predicting y variable 
+    # parameters: f_regression stats test, all features
+    f_selector = SelectKBest(f_regression, k = number_of_top_features)
+
+    # find the top number of independent variables (X's) correlated with y
+    f_selector.fit(X_train, y_train)
+
+    # boolean mask of whether the column was selected or not
+    feature_mask = f_selector.get_support()
+
+    # get list of top (2) K features. 
+    f_feature = X_train.iloc[:,feature_mask].columns.tolist()
+    
+    return f_feature
+
+
+def recursive_feature_eng(X_train, y_train, number_of_top_features):
+
+    # initialize the ML algorithm
+    lm = LinearRegression()
+
+    rfe = RFE(lm, n_features_to_select = number_of_top_features)
+
+    # fit the data using RFE
+    rfe.fit(X_train,y_train) 
+
+    # get the mask of the columns selected
+    feature_mask = rfe.support_
+
+    # get list of the column names. 
+    rfe_features = X_train.iloc[:,feature_mask].columns.tolist()
+    
+    # returning the list of features
+    print(f'The top {number_of_top_features} recursive features are: {rfe_features}') 
+
+    # view list of columns and their ranking
+    # get the ranks using "rfe.ranking" method
+    variable_ranks = rfe.ranking_
+
+    # get the variable names
+    variable_names = X_train.columns.tolist()
+
+    # combine ranks and names into a df for clean viewing
+    rfe_ranks_df = pd.DataFrame({'Feature': variable_names, 'Ranking': variable_ranks})
+
+    # sort the df by rank
+    return rfe_ranks_df.sort_values('Ranking')
