@@ -12,8 +12,7 @@ import env
 from env import user, password, host, get_connection
 
 # sklearn df, test, and split function
-from sklearn.model_selection import df_test_split
-
+from sklearn.model_selection import train_test_split
 
 
 '''function for plotting categorical or discrete/low feature option columns'''
@@ -85,3 +84,9 @@ def features_and_target(df):
 
         plt.title(col)
         plt.show()
+
+
+'''Function that takes in any pd.method and returns it without row/columns cut-offs'''
+def display_all(pd_function):
+    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+        return display(pd_function)
