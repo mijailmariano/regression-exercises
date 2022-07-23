@@ -34,7 +34,7 @@ def get_zillow_dataset():
             FROM properties_2017
                 JOIN predictions_2017 USING (id)
                     JOIN propertylandusetype USING (propertylandusetypeid)
-                        WHERE transactiondate >= 2017
+                        WHERE transactiondate = 2017
                             AND propertylandusedesc = "Single Family Residential"'''
         db_url = f'mysql+pymysql://{user}:{password}@{host}/zillow'
         # creating the zillow dataframe using Pandas' read_sql() function
@@ -54,6 +54,10 @@ def clean_zillow_dataset(df):
     df["year_built"] = df["year_built"].astype("int")
     df["fips"] = df["fips"].astype("int")
     
+    to_interger = ["bedroom_count", "city_id", "county_id", "zip_code"]
+    df[to_interger] = df[to_interger].astype("int")
+    df['purchase_date'] = pd.to_datetime(df['purchase_date'])
+
     # rearranging columns for easier readibility
     df = df[[
         'bedroom_count',
@@ -70,10 +74,10 @@ def clean_zillow_dataset(df):
 
 # function for handling outliers in the dataset
 def zillow_outliers(df):
-    df = df[df["bath_count"] <= 6]
-    df = df[df["bedroom_count"] <= 6]
-    df = df[df["finished_sq_feet"] <= 8000]
     df = df[df["home_value"] <= 1_500_000]
+    df = df[df["living_sq_feet"] <= 8_000]
+    df = df[df["bedroom_count"] <= 8]
+    df = df[df["bathroom_count"] <= 8]
 
     return df
 
@@ -132,29 +136,34 @@ def plot_variable_pairs(train_df, x_features_lst):
 
 '''function for plotting categorical or discrete/low feature option columns'''
 def plot_discrete(df, feature_lst):
-    for column in df[[feature_lst]]:
+    for col in feature_lst:
         plt.figure(figsize=(12, 6))
         sns.set(font_scale = 1)
-        ax = sns.countplot(x = column, 
+        ax = sns.countplot(x = df[col], 
                         data = df,
                         palette = "crest_r",
-                        order = df[column].value_counts().index)
+                        order = df[col].value_counts().index)
+        
         ax.bar_label(ax.containers[0])
         ax.set(xlabel = None)
-        plt.title(column)
+        plt.title(col)
         plt.show()
 
 
 '''function for plotting continuous/high feature option columns'''
 def plot_continuous(df, feature_lst):
-    for column in df[[feature_lst]]:
+    for col in feature_lst:
         plt.figure(figsize=(12, 6))
-        ax = sns.distplot(x = df[feature_lst], 
+        ax = sns.distplot(x = df[col], 
                         bins = 50,
                         kde = True)
+        
         ax.set(xlabel = None)
-        plt.axvline(df[column].median(), linewidth = 2, color = 'purple', alpha = 0.4, label = "median")
-        plt.title(column)
+        ax.ticklabel_format(style = "plain")
+
+        plt.axvline(df[col].mean(), linewidth = 2, color = 'purple', ls = ':', label = "mean")
+        plt.axvline(df[col].median(), linewidth = 2, color = 'red', alpha = 0.5, label = "median")
+        plt.title(col)
         plt.legend()
         plt.show()
 
@@ -168,7 +177,8 @@ def plot_target(df):
     ax.ticklabel_format(style = "plain") # removing axes scientific notation 
     ax.bar_label(ax.containers[0])
 
-    plt.axvline(df.median(), linewidth = 2, color = 'purple', alpha = 0.4, label = "median")
+    plt.axvline(df.mean(), linewidth = 2, color = 'purple', ls = ':', label = "mean")
+    plt.axvline(df.median(), linewidth = 2, color = 'red', alpha = 0.5, label = "median")
     plt.legend()
     plt.show()
 
