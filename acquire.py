@@ -103,20 +103,20 @@ def train_validate_test_split(df):
 
 '''Function takes in a dataframe and plots all variables against one another using sns.pairplot function. 
 This function also shows the line-of-best-fit for ea. plotted variables'''
-def plot_variable_pairs(df):
+def plot_variable_pairs1(df):
     g = sns.pairplot(data = df.sample(1000), corner = True, kind="reg", diag_kind = "kde", plot_kws={'line_kws':{'color':'red'}})
     plt.show()
 
 
 '''function takes in a dataframe and list, and plots them against target variable w/'line-of-best-fit'''
-def plot_variable_pairs(train_df, x_features_lst):
+def plot_variable_pairs2(train_df, x_features_lst):
     for col in x_features_lst:
         plt.figure(figsize = (10, 4))
         sns.set(font_scale = 1)
 
         # plotting ea. feature against target variable with added "independent jitter" for easier visual
-        ax = sns.regplot(train_df[[col]].sample(2000), \
-        train_df[["home_value"]].sample(2000), \
+        ax = sns.regplot(train_df[col].sample(2000), \
+        train_df["home_value"].sample(2000), \
         x_jitter = 1, # adding superficial noise to independent variables
         line_kws={
             "color": "red", 'linewidth': 1.5})
