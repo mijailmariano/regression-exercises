@@ -84,7 +84,7 @@ def zillow_outliers(df):
 '''Function created to split the initial dataset into train, validate, and test sub-datsets'''
 def train_validate_test_split(df):
     train_and_validate, test = train_test_split(
-    df, test_size=0.2, random_state=123)
+    df, test_size = 0.2, random_state = 123)
     
     train, validate = train_test_split(
         train_and_validate,
