@@ -74,10 +74,10 @@ def clean_zillow_dataset(df):
 
 # function for handling outliers in the dataset
 def zillow_outliers(df):
-    df = df[df["home_value"] <= 1_500_000]
+    df = df[df["home_value"] <= 900_000]
     df = df[df["living_sq_feet"] <= 8_000]
-    df = df[df["bedroom_count"] <= 8]
-    df = df[df["bathroom_count"] <= 8]
+    df = df[df["bedroom_count"] <= 6]
+    df = df[df["bathroom_count"] <= 6.5]
 
     return df
 
@@ -88,8 +88,8 @@ def train_validate_test_split(df):
     
     train, validate = train_test_split(
         train_and_validate,
-        test_size=0.3,
-        random_state=123)
+        test_size = 0.3,
+        random_state = 123)
 
     print(f'train shape: {train.shape}')
     print(f'validate shape: {validate.shape}')
