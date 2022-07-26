@@ -309,9 +309,6 @@ def recursive_feature_eng(X_train, y_train, number_of_top_features):
 
     # get list of the column names. 
     rfe_features = X_train.iloc[:,feature_mask].columns.tolist()
-    
-    # returning the list of features
-    print(f'The top {number_of_top_features} recursive features are: {rfe_features}') 
 
     # view list of columns and their ranking
     # get the ranks using "rfe.ranking" method
